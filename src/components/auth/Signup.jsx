@@ -4,15 +4,16 @@ import Title from "../form/Title";
 import FormInput from "../form/FormInput";
 import Submit from "../form/Submit";
 
-export default function Signin() {
+export default function Signup() {
   return (
     <div className="fixed inset-0 bg-primary -z-10  flex justify-center items-center">
       <Container>
         <form className="bg-secondary rounded p-6 w-72 space-y-6">
-          <Title>Sign in</Title>
+          <Title>Sign up</Title>
+          <FormInput label="Name" placeholder="Abc" name="name" />
           <FormInput label="Email" placeholder="abc@gmail.com" name="email" />
           <FormInput label="Password" placeholder="●●●●●●●●" name="password" />
-          <Submit value="Sign in" />
+          <Submit value="Sign up" />
           <div className="flex justify-between">
             <a
               className="text-dark-subtle hover:text-white transition"
@@ -24,7 +25,7 @@ export default function Signin() {
               className="text-dark-subtle hover:text-white transition"
               href="#"
             >
-              Sign up
+              Sign in
             </a>
           </div>
         </form>
