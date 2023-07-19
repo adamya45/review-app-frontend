@@ -15,7 +15,7 @@ export default function Signin() {
           <FormInput label="Password" placeholder="●●●●●●●●" name="password" />
           <Submit value="Sign in" />
           <div className="flex justify-between">
-            <CustomLink to="/auth/foeget-password">Forget Password</CustomLink>
+            <CustomLink to="/auth/forget-password">Forget Password</CustomLink>
             <CustomLink to="/auth/signup">Sign up</CustomLink>
           </div>
         </form>
