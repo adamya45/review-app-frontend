@@ -4,6 +4,7 @@ import Title from "../form/Title";
 import Submit from "../form/Submit";
 
 const OTP_LENGTH = 6;
+let currentOTPIndex;
 
 export default function EmailVerification() {
   const [otp, setOtp] = useState(new Array(OTP_LENGTH).fill(""));
@@ -11,18 +12,38 @@ export default function EmailVerification() {
 
   const inputRef = useRef();
 
-  const handleOtpChange = ({target}, index) => {
-    const {value} = target;
-    //setOtp([value]);
-    setActiveOtpIndex(index + 1);
+  const focusNextInputField = (currentOTPIndex) => {
+    setActiveOtpIndex(currentOTPIndex + 1);
+  };
+  const focusPrevInputField = (currentOTPIndex) => {
+    let nextIndex;
+    const diff = currentOTPIndex - 1;
+    nextIndex = diff !== 0 ? diff : 0;
+    setActiveOtpIndex(nextIndex);
+  };
+  const handleOtpChange = ({ target }, currentOTPIndex) => {
+
+    const { value } = target;
+    const newOtp = [...otp];
+    newOtp[currentOTPIndex] = value.substring(value.length - 1, value.length);
+
+    if (!value) focusPrevInputField(currentOTPIndex);
+    else focusNextInputField(currentOTPIndex);
+
+    setOtp([...newOtp]);
+  };
+
+  const handleKeyDown = ({ key }, index) => {
+    currentOTPIndex = index;
+    if (key === "Backspace") {
+        focusPrevInputField(currentOTPIndex+1);
+     }
   };
 
   useEffect(() => {
-
     inputRef.current?.focus();
   }, [activeOtpIndex]);
 
-  
   return (
     <div className="fixed inset-0 bg-primary -z-10  flex justify-center items-center">
       <Container>
@@ -38,11 +59,12 @@ export default function EmailVerification() {
             {otp.map((_, index) => {
               return (
                 <input
-                ref={activeOtpIndex === index ? inputRef:null}
+                  ref={activeOtpIndex === index ? inputRef : null}
                   key={index}
                   type="number"
                   value={otp[index] || ""}
                   onChange={(ev) => handleOtpChange(ev, index)}
+                  onKeyDown={(ev) => handleKeyDown(ev, index)}
                   className="w-12 h-12 border-2 border-dark-subtle focus:border-white rounded bg-transparent outline-none text-center text-white font-semibold text-xl spin-button-none"
                 />
               );
