@@ -7,6 +7,7 @@ import FormContainer from "../form/FormContainer";
 import FormInput from "../form/FormInput";
 import Submit from "../form/Submit";
 import Title from "../form/Title";
+import { useNavigate } from "react-router-dom";
 
 const validateUserInfo = ({ name, email, password }) => {
   const isValidEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -26,6 +27,8 @@ const validateUserInfo = ({ name, email, password }) => {
 };
 
 export default function Signup() {
+  const navigate = useNavigate();
+
   const [userInfo, setUserInfo] = useState({
     name: "",
     email: "",
@@ -45,7 +48,11 @@ export default function Signup() {
 
     const response = await createUser(userInfo);
     if (response.error) return console.log(response.error);
-    console.log(response.user);
+
+    navigate("/auth/verification", {
+      state: { user: response.user },
+      replace: true,
+    });
   };
 
   const { name, email, password } = userInfo;
