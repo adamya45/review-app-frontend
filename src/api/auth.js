@@ -4,10 +4,22 @@ export const createUser = async (userInfo) => {
   try {
     const { data } = await client.post("/user/create", userInfo);
     return data;
-  } catch (err) {
-    const { response } = err;
-    if (response.data) return response.data;
+  } catch (error) {
+    const { response } = error;
+    if (response?.data) return response.data;
 
-    return { err: err.message || err };
+    return { error: error.message || error };
+  }
+};
+
+export const verifyUserEmail = async (userInfo) => {
+  try {
+    const { data } = await client.post("/user/verify-email", userInfo);
+    return data;
+  } catch (error) {
+    const { response } = error;
+    if (response?.data) return response.data;
+
+    return { error: error.message || error };
   }
 };
