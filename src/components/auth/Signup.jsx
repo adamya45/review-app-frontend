@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { createUser } from "../../api/auth";
 import { commonModalClasses } from "../../utils/theme";
 import Container from "../Container";
@@ -8,7 +8,7 @@ import FormInput from "../form/FormInput";
 import Submit from "../form/Submit";
 import Title from "../form/Title";
 import { useNavigate } from "react-router-dom";
-import { useNotification } from "../../hooks";
+import { useAuth, useNotification } from "../../hooks";
 
 const validateUserInfo = ({ name, email, password }) => {
   const isValidEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -37,6 +37,8 @@ export default function Signup() {
   });
 
   const { updateNotification } = useNotification();
+  const { authInfo } = useAuth();
+  const { isLoggedIn } = authInfo;
 
   const handleChange = ({ target }) => {
     const { name, value } = target;
@@ -57,6 +59,10 @@ export default function Signup() {
       replace: true,
     });
   };
+
+  useEffect(() => {
+    if (isLoggedIn) navigate("/");
+  }, [isLoggedIn]);
 
   const { name, email, password } = userInfo;
 
