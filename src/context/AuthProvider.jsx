@@ -1,7 +1,7 @@
 import React, { createContext, useState } from "react";
 import { signInUser } from "../api/auth";
 
-const AuthContext = createContext();
+export const AuthContext = createContext();
 
 const defaultAuthInfo = {
   profile: null,
@@ -11,7 +11,8 @@ const defaultAuthInfo = {
 };
 
 export default function AuthProvider({ children }) {
-  const [authInfo, setAuthInfo] = useState(...defaultAuthInfo);
+  const [authInfo, setAuthInfo] = useState(defaultAuthInfo); // Corrected here
+
   const handleLogin = async (email, password) => {
     setAuthInfo({ ...authInfo, inPending: true });
     const { error, user } = await signInUser({ email, password });
