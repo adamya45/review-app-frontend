@@ -6,7 +6,7 @@ import { useAuth, useTheme } from "../../hooks";
 
 export default function Navbar() {
   const { toggleTheme } = useTheme();
-  const { authInfo } = useAuth();
+  const { authInfo, handleLogout } = useAuth();
   const { isLoggedIn } = authInfo;
 
   return (
@@ -35,7 +35,10 @@ export default function Navbar() {
             </li>
             <li>
               {isLoggedIn ? (
-                <button className="text-white font-semibold text-lg">
+                <button
+                  onClick={handleLogout}
+                  className="text-white font-semibold text-lg"
+                >
                   Logout
                 </button>
               ) : (
