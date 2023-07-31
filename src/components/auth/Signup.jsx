@@ -54,8 +54,9 @@ export default function Signup() {
     const response = await createUser(userInfo);
     if (response.error) return console.log(response.error);
 
+    // Pass the user data to the EmailVerification component during navigation
     navigate("/auth/verification", {
-      state: { user: response.user },
+      state: { user: response.user }, // Make sure "user" is included in the response from the createUser function
       replace: true,
     });
   };
