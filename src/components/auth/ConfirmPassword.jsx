@@ -11,6 +11,10 @@ import { verifyPasswordResetToken } from "../../api/auth";
 import { useNotification } from "../../hooks";
 
 export default function ConfirmPassword() {
+  const [password, setPassword] = useState({
+    one: "",
+    two: "",
+  });
   const [isVerifying, setIsVerifying] = useState(true);
   const [isValid, setIsValid] = useState(false);
   const [searchParams] = useSearchParams();
@@ -24,12 +28,19 @@ export default function ConfirmPassword() {
 
   useEffect(() => {
     isValidToken();
-  }, []);
+  }, [token, id]);
 
   const isValidToken = async () => {
+    if (!token || !id) {
+      setIsValid(false);
+      setIsVerifying(false);
+      return navigate("/auth/reset-password", { replace: true });
+    }
+
     const { error, valid } = await verifyPasswordResetToken(token, id);
     setIsVerifying(false);
     if (error) {
+      navigate("/auth/reset-password", { replace: true });
       return updateNotification("error", error);
     }
     if (!valid) {
@@ -38,6 +49,24 @@ export default function ConfirmPassword() {
       return navigate("/auth/reset-password", { replace: true });
     }
     setIsValid(true);
+  };
+
+  const handleChange = ({ target }) => {
+    const { name, value } = target;
+    setPassword({ ...password, [name]: value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!password.one.trim())
+      return updateNotification("error", "Please enter a valid password!");
+
+    if (password.one.trim().length < 8)
+      return updateNotification("error", "Password must be 8 characters long!");
+
+    if (password.one !== password.two)
+      return updateNotification("error", "Password does not match!");
   };
 
   if (isVerifying)
@@ -68,18 +97,22 @@ export default function ConfirmPassword() {
   return (
     <FormContainer>
       <Container>
-        <form className={commonModalClasses + " w-96"}>
+        <form onSubmit={handleSubmit} className={commonModalClasses + " w-96"}>
           <Title>Enter New Password</Title>
           <FormInput
+            value={password.one}
+            onChange={handleChange}
             label="New Password"
             placeholder="●●●●●●●●"
-            name="password"
+            name="one"
             type="password"
           />
           <FormInput
+            value={password.two}
+            onChange={handleChange}
             label="Confirm Password"
             placeholder="●●●●●●●●"
-            name="password"
+            name="two"
             type="password"
           />
           <Submit value="Change Password" />
