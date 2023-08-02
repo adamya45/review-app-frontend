@@ -40,7 +40,7 @@ export const getIsAuth = async (token) => {
   try {
     const { data } = await client.get("/user/is-auth", {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: "Bearer " + token,
         accept: "application/json",
       },
     });
@@ -71,6 +71,18 @@ export const verifyPasswordResetToken = async (token, userId) => {
       token,
       userId,
     });
+    return data;
+  } catch (error) {
+    const { response } = error;
+    if (response?.data) return response.data;
+
+    return { error: error.message || error };
+  }
+};
+
+export const resetPassword = async (passwordInfo) => {
+  try {
+    const { data } = await client.post("/user/reset-password", passwordInfo);
     return data;
   } catch (error) {
     const { response } = error;

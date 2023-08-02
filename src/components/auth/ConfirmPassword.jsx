@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { ImSpinner3 } from "react-icons/im";
+import { commonModalClasses } from "../../utils/theme";
 import Container from "../Container";
-import Title from "../form/Title";
+import FormContainer from "../form/FormContainer";
 import FormInput from "../form/FormInput";
 import Submit from "../form/Submit";
-import FormContainer from "../form/FormContainer";
-import { commonModalClasses } from "../../utils/theme";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { PiSpinnerGapBold } from "react-icons/pi";
-import { verifyPasswordResetToken } from "../../api/auth";
+import Title from "../form/Title";
+import { resetPassword, verifyPasswordResetToken } from "../../api/auth";
 import { useNotification } from "../../hooks";
 
 export default function ConfirmPassword() {
@@ -15,7 +15,7 @@ export default function ConfirmPassword() {
     one: "",
     two: "",
   });
-  const [isVerifying, setIsVerifying] = useState(true);
+  const [isVerifying, setIsVerifying] = useState(false);
   const [isValid, setIsValid] = useState(false);
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
@@ -25,29 +25,23 @@ export default function ConfirmPassword() {
   const navigate = useNavigate();
 
   // isValid, !isValid
-
   useEffect(() => {
     isValidToken();
-  }, [token, id]);
+  }, []);
 
   const isValidToken = async () => {
-    if (!token || !id) {
-      setIsValid(false);
-      setIsVerifying(false);
-      return navigate("/auth/reset-password", { replace: true });
-    }
-
     const { error, valid } = await verifyPasswordResetToken(token, id);
     setIsVerifying(false);
     if (error) {
       navigate("/auth/reset-password", { replace: true });
       return updateNotification("error", error);
     }
+
     if (!valid) {
       setIsValid(false);
-      setIsVerifying(false);
       return navigate("/auth/reset-password", { replace: true });
     }
+
     setIsValid(true);
   };
 
@@ -60,13 +54,24 @@ export default function ConfirmPassword() {
     e.preventDefault();
 
     if (!password.one.trim())
-      return updateNotification("error", "Please enter a valid password!");
+      return updateNotification("error", "Password is missing!");
 
     if (password.one.trim().length < 8)
       return updateNotification("error", "Password must be 8 characters long!");
 
     if (password.one !== password.two)
-      return updateNotification("error", "Password does not match!");
+      return updateNotification("error", "Password do not match!");
+
+    const { error, message } = await resetPassword({
+      newPassword: password.one,
+      userId: id,
+      token,
+    });
+
+    if (error) return updateNotification("error", error);
+
+    updateNotification("success", message);
+    navigate("/auth/signin", { replace: true });
   };
 
   if (isVerifying)
@@ -75,9 +80,9 @@ export default function ConfirmPassword() {
         <Container>
           <div className="flex space-x-2 items-center">
             <h1 className="text-4xl font-semibold dark:text-white text-primary">
-              Please wait, while we are verifying your token!
+              Please wait we are verifying your token!
             </h1>
-            <PiSpinnerGapBold className="animate-spin text-4xl dark:text-white text-primary" />
+            <ImSpinner3 className="animate-spin text-4xl dark:text-white text-primary" />
           </div>
         </Container>
       </FormContainer>
@@ -88,7 +93,7 @@ export default function ConfirmPassword() {
       <FormContainer>
         <Container>
           <h1 className="text-4xl font-semibold dark:text-white text-primary">
-            Sorry, the token is invalid!
+            Sorry the token is invalid!
           </h1>
         </Container>
       </FormContainer>
@@ -103,7 +108,7 @@ export default function ConfirmPassword() {
             value={password.one}
             onChange={handleChange}
             label="New Password"
-            placeholder="●●●●●●●●"
+            placeholder="********"
             name="one"
             type="password"
           />
@@ -111,11 +116,11 @@ export default function ConfirmPassword() {
             value={password.two}
             onChange={handleChange}
             label="Confirm Password"
-            placeholder="●●●●●●●●"
+            placeholder="********"
             name="two"
             type="password"
           />
-          <Submit value="Change Password" />
+          <Submit value="Confirm Password" />
         </form>
       </Container>
     </FormContainer>
