@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { verifyUserEmail } from "../../api/auth";
+import { resendEmailVerificationToken, verifyUserEmail } from "../../api/auth";
 import { commonModalClasses } from "../../utils/theme";
 import Container from "../Container";
 import FormContainer from "../form/FormContainer";
@@ -27,7 +27,9 @@ export default function EmailVerification() {
   const [activeOtpIndex, setActiveOtpIndex] = useState(0);
 
   const { isAuth, authInfo } = useAuth();
-  const { isLoggedIn } = authInfo;
+  const { isLoggedIn, profile } = authInfo;
+  const isVerified = profile?.isVerified;
+
   const inputRef = useRef();
   const { updateNotification } = useNotification();
 
@@ -57,6 +59,17 @@ export default function EmailVerification() {
     setOtp([...newOtp]);
   };
 
+  const handleOTPResend = async () => {
+    const { error, message } = await resendEmailVerificationToken(user.id);
+
+    if (error) return updateNotification("error", error);
+
+    updateNotification(
+      "success",
+      `A verification email has been sent to your email`
+    );
+  };
+
   const handleKeyDown = ({ key }, index) => {
     currentOTPIndex = index;
     if (key === "Backspace") {
@@ -81,6 +94,7 @@ export default function EmailVerification() {
       OTP: otp.join(""),
       userId: user.id,
     });
+
     if (error) return updateNotification("error", error);
 
     updateNotification("success", message);
@@ -94,8 +108,8 @@ export default function EmailVerification() {
 
   useEffect(() => {
     if (!user) navigate("/not-found");
-    if (isLoggedIn) navigate("/");
-  }, [user, isLoggedIn]);
+    if (isLoggedIn && isVerified) navigate("/");
+  }, [user, isLoggedIn, isVerified]);
 
   // if(!user) return null
 
@@ -126,7 +140,16 @@ export default function EmailVerification() {
             })}
           </div>
 
-          <Submit value="Verify Account" />
+          <div>
+            <Submit value="Verify Account" />
+            <button
+              onClick={handleOTPResend}
+              type="button"
+              className="dark:text-white text-blue-500 font-semibold hover:underline mt-2"
+            >
+              I don't have OTP
+            </button>
+          </div>
         </form>
       </Container>
     </FormContainer>
